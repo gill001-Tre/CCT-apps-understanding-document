@@ -20,8 +20,9 @@
 graph TD
     CARE["🎯 CARE<br/>Customer Administration System<br/>━━━━━━━━━━━━━━━━━━━━<br/>Source of Truth for Customer Data"]
     
-    %% DATABASE
-    DB[("💾 Database<br/>Stores all customer information and transaction data")]
+    %% CRM INTEGRATION
+    Karma[("📖 Karma (Read)<br/>Gets customer data from CRM PeopleSoft")]
+    XML[("✍️ XML (Write)<br/>Writes customer data updates to CRM")]
     
     %% INBOUND INTEGRATIONS
     IVRA["IVRA/NCCP<br/>Connects IVR phone system to CARE for customer lookup during calls"]
@@ -55,7 +56,8 @@ graph TD
     Backend["Backend Systems<br/>Handles business operations and processes through IVRA gateway"]
     
     %% CONNECTIONS
-    DB <--> CARE
+    Karma --> CARE
+    CARE --> XML
     
     IVRA --> CARE
     BFF --> CARE
@@ -77,7 +79,8 @@ graph TD
     
     %% STYLING
     style CARE fill:#ff4444,stroke:#cc0000,stroke-width:8px,color:#fff,font-weight:bold,font-size:16px
-    style DB fill:#8b0000,stroke:#000,stroke-width:3px,color:#fff
+    style Karma fill:#8b0000,stroke:#000,stroke-width:3px,color:#fff
+    style XML fill:#8b0000,stroke:#000,stroke-width:3px,color:#fff
     style Genesys fill:#ff8c00,stroke:#cc6600,stroke-width:3px
     style IVRA fill:#ff8c00,stroke:#cc6600,stroke-width:2px
     style BFF fill:#ff8c00,stroke:#cc6600,stroke-width:2px
@@ -98,7 +101,8 @@ graph TD
 
 | App Name | What It Does | How It Works with CARE | Real Life Example |
 |----------|--------------|------------------------|-------------------|
-| **Database** | Saves customer data | Stores every customer detail permanently | Like a filing cabinet that keeps all customer records |
+| **Karma (CRM PeopleSoft)** | Provides customer data (Read-only) | CARE reads customer information from CRM through Karma | Agent searches for customer, CARE gets data from PeopleSoft via Karma |
+| **XML (Write)** | Updates customer data | CARE writes customer changes to CRM through XML | Agent updates customer email, CARE sends change via XML to PeopleSoft |
 | **IVRA/NCCP** | Handles phone calls | Fetches customer info when someone calls | Customer calls support, IVR looks up their account in CARE |
 | **BFF-chatbot.se** | Powers the chatbot | Gets customer info for chat conversations | Customer chats online, bot retrieves their order history from CARE |
 | **Genesys Cloud** | Manages call center | Shows agent who's calling with their info | Agent sees caller's name and account details pop up on screen |
@@ -129,7 +133,8 @@ graph LR
     end
     
     CARE["🎯 CARE<br/>REST APIs"]
-    DB[(Database)]
+    Karma[("Karma (Read)")]
+    XML[("XML (Write)")]
     
     subgraph OUT["📤 OUTBOUND from CARE"]
         OUT1[Zendesk]
@@ -145,7 +150,8 @@ graph LR
     IN4 --> CARE
     IN5 --> CARE
     
-    CARE <--> DB
+    Karma --> CARE
+    CARE --> XML
     
     CARE --> OUT1
     CARE --> OUT2
@@ -154,13 +160,15 @@ graph LR
     CARE --> OUT5
     
     style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:5px,color:#fff
-    style DB fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style Karma fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style XML fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
 ```
 
 **Simple explanation:**
 - **Inbound**: These apps request data from CARE
 - **Outbound**: CARE sends data to these apps
-- **Database**: CARE stores all customer data here
+- **Karma (Read)**: CARE reads customer data from CRM PeopleSoft through Karma
+- **XML (Write)**: CARE writes customer data updates to CRM PeopleSoft through XML
 
 ---
 

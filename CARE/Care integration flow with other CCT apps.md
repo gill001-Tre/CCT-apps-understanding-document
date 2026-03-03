@@ -45,7 +45,7 @@ sequenceDiagram
     Workspace->>CARE: PUT /customer/{id}
     CARE-->>Workspace: Updated
 ```
-**What happens:** An agent types a customer name or phone number to search. CARE finds matching customers and shows them. The agent clicks on the right customer, and CARE displays their complete profile. If the agent needs to update something (like a new email address), they make the change and CARE saves it to the database.
+**What happens:** An agent types a customer name or phone number to search. CARE gets customer data from CRM PeopleSoft (through Karma) and shows matching customers. The agent clicks on the right customer, and CARE displays their complete profile. If the agent needs to update something (like a new email address), they make the change and CARE sends the update to PeopleSoft through XML.
 
 ---
 

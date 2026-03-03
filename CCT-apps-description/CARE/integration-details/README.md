@@ -21,9 +21,6 @@
 graph TD
     CARE["🎯 CARE<br/>Customer Administration System<br/>━━━━━━━━━━━━━━━━━━━━<br/>Source of Truth for Customer Data"]
     
-    %% DATABASE
-    DB[("💾 DATABASE<br/>Stores all customer data - Connected via direct JDBC")]
-    
     %% INBOUND INTEGRATIONS
     IVRA["IVRA/NCCP<br/>IVR system fetches customer data via REST API (GET /customer/lookup)"]
     
@@ -56,8 +53,6 @@ graph TD
     Backend["Backend Systems<br/>Business operations communicate bidirectionally via IVRA/NCCP service mesh"]
     
     %% CONNECTIONS
-    DB <-->|"JDBC"| CARE
-    
     IVRA -->|"REST API"| CARE
     BFF -->|"REST API"| CARE
     Agent -->|"REST API"| CARE
@@ -77,7 +72,6 @@ graph TD
     
     %% STYLING
     style CARE fill:#ff4444,stroke:#cc0000,stroke-width:8px,color:#fff,font-weight:bold,font-size:16px
-    style DB fill:#8b0000,stroke:#000,stroke-width:3px,color:#fff
     style Genesys fill:#ff8c00,stroke:#cc6600,stroke-width:3px
     style IVRA fill:#ff8c00,stroke:#cc6600,stroke-width:2px
     style BFF fill:#ff8c00,stroke:#cc6600,stroke-width:2px
@@ -98,7 +92,6 @@ graph TD
 
 | System | What It Does & How It Communicates with CARE |
 |--------|----------------------------------------------|
-| **Database** | Stores all customer data - Connected via direct JDBC |
 | **IVRA/NCCP** | IVR system fetches customer data via REST API (GET /customer/lookup) |
 | **BFF-chatbot.se** | Provides chat layer with customer data via REST API (GET /customer, /orders) |
 | **Genesys Cloud** | Contact center platform exchanges screen pop data bidirectionally via REST API |

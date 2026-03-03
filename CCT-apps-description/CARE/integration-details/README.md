@@ -21,86 +21,74 @@
 graph TD
     CARE["🎯 CARE<br/>Customer Administration System<br/>━━━━━━━━━━━━━━━━━━━━<br/>Source of Truth for Customer Data"]
     
-    %% CRITICAL DEPENDENCIES - Top
-    DB[("💾 DATABASE<br/>━━━━━━━━━━<br/>🔴 CRITICAL<br/>━━━━━━━━━━<br/>Function: Data storage<br/>Endpoint: JDBC<br/>Pattern: Direct DB")]
+    %% DATABASE
+    DB[("💾 DATABASE<br/>Stores all customer data - Connected via direct JDBC")]
     
-    %% HIGH PRIORITY INTEGRATIONS - Right Side
-    IVRA["IVRA/NCCP<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: IVR bridge<br/>Endpoints:<br/>GET /customer/lookup<br/>GET /account/validate<br/>Pattern: REST API<br/>Direction: INBOUND"]
+    %% INBOUND INTEGRATIONS
+    IVRA["IVRA/NCCP<br/>IVR system fetches customer data via REST API (GET /customer/lookup)"]
     
-    BFF["BFF-chatbot.se<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: Chat data layer<br/>Endpoints:<br/>GET /customer/{id}<br/>GET /orders/{id}<br/>Pattern: BFF<br/>Direction: INBOUND"]
+    BFF["BFF-chatbot.se<br/>Provides chat layer with customer data via REST API (GET /customer, /orders)"]
     
-    Genesys["Genesys Cloud<br/>━━━━━━━━━━<br/>🔴 CRITICAL<br/>━━━━━━━━━━<br/>Function: Contact center<br/>Endpoint: Screen pop API<br/>Pattern: Bidirectional<br/>Direction: BOTH"]
+    Genesys["Genesys Cloud<br/>Contact center platform exchanges screen pop data bidirectionally via REST API"]
     
-    %% MEDIUM PRIORITY - Right Bottom
-    BIF["BIF-Ticket<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: Ticket handler<br/>Endpoint: POST /ticket<br/>Pattern: REST API<br/>Direction: OUTBOUND"]
+    Agent["Agent Workspace<br/>UI for agents to manage customer data via REST API (All CRUD operations)"]
     
-    Zendesk["Zendesk<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: Ticketing<br/>Via: BIF-Ticket<br/>Pattern: REST via BIF<br/>Direction: OUTBOUND"]
+    Boost["Boost.ai<br/>AI chatbot accesses customer data indirectly via BFF-chatbot.se layer"]
     
-    CEL["CEL Event Log<br/>━━━━━━━━━━<br/>🟡 MEDIUM<br/>━━━━━━━━━━<br/>Function: Audit logging<br/>Endpoint: POST /events<br/>Pattern: Event-driven<br/>Direction: OUTBOUND"]
+    Speed["3Speed<br/>Network diagnostics tool sends speed test results via REST POST"]
     
-    %% SUPPORT TOOLS - Left Side
-    Speed["3Speed<br/>━━━━━━━━━━<br/>🟡 MEDIUM<br/>━━━━━━━━━━<br/>Function: Speed test<br/>Endpoint:<br/>POST /speed-test/result<br/>Pattern: REST API<br/>Direction: INBOUND"]
+    Emite["eMite<br/>Metrics dashboard pulls CARE metrics via REST GET polling"]
     
-    Emite["eMite<br/>━━━━━━━━━━<br/>🟡 MEDIUM<br/>━━━━━━━━━━<br/>Function: Metrics dashboard<br/>Endpoint: GET /metrics<br/>Pattern: REST API<br/>Direction: INBOUND"]
+    %% OUTBOUND INTEGRATIONS
+    BIF["BIF-Ticket<br/>Ticket handler receives customer issues via REST POST from CARE"]
     
-    Agent["Agent Workspace<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: Agent UI<br/>Endpoints: All CRUD<br/>Pattern: REST API<br/>Direction: INBOUND"]
+    Zendesk["Zendesk<br/>Ticketing system receives tickets indirectly via BIF-Ticket middleware"]
     
-    %% ANALYTICS - Bottom
-    Calabrio["Calabrio WFM<br/>━━━━━━━━━━<br/>🟢 ASYNC<br/>━━━━━━━━━━<br/>Function: Workforce mgmt<br/>Endpoint: Daily export<br/>Pattern: Batch export<br/>Direction: OUTBOUND"]
+    CEL["CEL Event Log<br/>Audit logging receives all CARE events asynchronously via POST"]
     
-    IDF["IDF Dialer<br/>━━━━━━━━━━<br/>🟢 ASYNC<br/>━━━━━━━━━━<br/>Function: Analytics export<br/>Pattern: Indirect via Genesys<br/>Direction: OUTBOUND"]
+    Calabrio["Calabrio WFM<br/>Workforce management receives agent data via daily batch export"]
     
-    Indicate["Indicate Me<br/>━━━━━━━━━━<br/>🟢 ASYNC<br/>━━━━━━━━━━<br/>Function: Speech-to-text<br/>Pattern: Indirect via Genesys<br/>Direction: OUTBOUND"]
+    IDF["IDF Dialer<br/>Call analytics receives data indirectly via Genesys Cloud export"]
     
-    %% BACKEND SYSTEMS - Left Bottom
-    Backend["Backend Systems<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: Business ops<br/>Via: IVRA/NCCP<br/>Pattern: Service mesh<br/>Direction: BOTH"]
+    Indicate["Indicate Me<br/>Speech analytics receives recordings indirectly via Genesys Cloud"]
     
-    Boost["Boost.ai<br/>━━━━━━━━━━<br/>🟠 HIGH<br/>━━━━━━━━━━<br/>Function: Chatbot<br/>Via: BFF-chatbot.se<br/>Pattern: BFF<br/>Direction: INBOUND"]
+    %% BACKEND SYSTEMS
+    Backend["Backend Systems<br/>Business operations communicate bidirectionally via IVRA/NCCP service mesh"]
     
-    %% CONNECTIONS - Database (Critical)
-    DB <-->|"All data<br/>JDBC connection"| CARE
+    %% CONNECTIONS
+    DB <-->|"JDBC"| CARE
     
-    %% CONNECTIONS - High Priority Inbound
-    IVRA -->|"READ customer<br/>Sync REST"| CARE
-    BFF -->|"READ customer/orders<br/>Sync REST"| CARE
-    Agent -->|"CRUD all data<br/>Sync REST"| CARE
-    Boost -->|"Via BFF layer<br/>Indirect"| BFF
+    IVRA -->|"REST API"| CARE
+    BFF -->|"REST API"| CARE
+    Agent -->|"REST API"| CARE
+    Speed -->|"REST POST"| CARE
+    Emite <-->|"REST GET"| CARE
+    Boost -->|"Via BFF"| BFF
     
-    %% CONNECTIONS - High Priority Outbound
-    CARE -->|"Screen pop data<br/>Real-time"| Genesys
-    CARE -->|"Create tickets<br/>Via BIF"| BIF
-    BIF -->|"POST ticket<br/>Sync REST"| Zendesk
+    CARE <-->|"REST API"| Genesys
+    CARE -->|"REST POST"| BIF
+    CARE -->|"POST Events"| CEL
+    CARE -->|"Daily Export"| Calabrio
+    CARE <-->|"Via IVRA"| Backend
     
-    %% CONNECTIONS - Medium Priority
-    Speed -->|"WRITE test results<br/>Async POST"| CARE
-    Emite <-->|"READ metrics<br/>Polling"| CARE
-    CARE -->|"Log all events<br/>Async POST"| CEL
-    
-    %% CONNECTIONS - Backend
-    CARE <-->|"Via IVRA/NCCP<br/>Service mesh"| Backend
-    
-    %% CONNECTIONS - Analytics (Async)
-    CARE -->|"Agent data<br/>Daily batch"| Calabrio
-    Genesys -->|"Call data<br/>Scheduled export"| IDF
-    Genesys -->|"Recordings<br/>On-demand"| Indicate
+    BIF -->|"REST API"| Zendesk
+    Genesys -->|"Export"| IDF
+    Genesys -->|"Export"| Indicate
     
     %% STYLING
     style CARE fill:#ff4444,stroke:#cc0000,stroke-width:8px,color:#fff,font-weight:bold,font-size:16px
-    style DB fill:#8b0000,stroke:#000,stroke-width:5px,color:#fff
-    style Genesys fill:#dc143c,stroke:#8b0000,stroke-width:4px,color:#fff
-    
-    style IVRA fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    style BFF fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    style BIF fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    style Agent fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    style Backend fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    style Boost fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    style Zendesk fill:#ff8c00,stroke:#cc6600,stroke-width:3px
-    
+    style DB fill:#8b0000,stroke:#000,stroke-width:3px,color:#fff
+    style Genesys fill:#ff8c00,stroke:#cc6600,stroke-width:3px
+    style IVRA fill:#ff8c00,stroke:#cc6600,stroke-width:2px
+    style BFF fill:#ff8c00,stroke:#cc6600,stroke-width:2px
+    style BIF fill:#ff8c00,stroke:#cc6600,stroke-width:2px
+    style Agent fill:#ff8c00,stroke:#cc6600,stroke-width:2px
+    style Backend fill:#ff8c00,stroke:#cc6600,stroke-width:2px
+    style Boost fill:#ff8c00,stroke:#cc6600,stroke-width:2px
+    style Zendesk fill:#ff8c00,stroke:#cc6600,stroke-width:2px
     style Speed fill:#ffd700,stroke:#daa520,stroke-width:2px
     style Emite fill:#ffd700,stroke:#daa520,stroke-width:2px
     style CEL fill:#ffd700,stroke:#daa520,stroke-width:2px
-    
     style Calabrio fill:#90ee90,stroke:#32cd32,stroke-width:2px
     style IDF fill:#90ee90,stroke:#32cd32,stroke-width:2px
     style Indicate fill:#90ee90,stroke:#32cd32,stroke-width:2px
@@ -108,32 +96,23 @@ graph TD
 
 **CARE Integration Summary:**
 
-| System | Priority | Function | Integration Pattern | Endpoint Examples | Direction |
-|--------|----------|----------|---------------------|-------------------|-----------|
-| **Database** | 🔴 CRITICAL | Data persistence | Direct JDBC | N/A (database connection) | Bidirectional |
-| **Genesys Cloud** | 🔴 CRITICAL | Contact center platform | Bidirectional API | Screen pop, call metadata | BOTH |
-| **IVRA/NCCP** | 🟠 HIGH | IVR backend bridge | Synchronous REST | `GET /customer/lookup`<br>`GET /account/validate` | INBOUND |
-| **BFF-chatbot.se** | 🟠 HIGH | Chat aggregation layer | BFF Pattern | `GET /customer/{id}`<br>`GET /orders/{customerId}` | INBOUND |
-| **Agent Workspace** | 🟠 HIGH | Agent UI | Synchronous REST | All CRUD endpoints | INBOUND |
-| **BIF-Ticket** | 🟠 HIGH | Ticket creation handler | REST via middleware | `POST /ticket/create` | OUTBOUND |
-| **Zendesk** | 🟠 HIGH | Ticket management | REST via BIF | Via BIF-Ticket only | OUTBOUND |
-| **Backend Systems** | 🟠 HIGH | Business operations | Service mesh via IVRA/NCCP | Various via gateway | BOTH |
-| **Boost.ai** | 🟠 HIGH | AI chatbot | Indirect via BFF | Via BFF-chatbot.se | INBOUND (indirect) |
-| **3Speed** | 🟡 MEDIUM | Network diagnostics | Asynchronous REST | `POST /speed-test/result` | INBOUND |
-| **eMite** | 🟡 MEDIUM | Live metrics | Polling REST | `GET /metrics` | INBOUND |
-| **CEL** | 🟡 MEDIUM | Compliance logging | Event-driven | `POST /events` | OUTBOUND |
-| **Calabrio WFM** | 🟢 ASYNC | Workforce management | Batch export | Daily data export | OUTBOUND |
-| **IDF Dialer** | 🟢 ASYNC | Call analytics | Indirect via Genesys | N/A (indirect) | OUTBOUND (indirect) |
-| **Indicate Me** | 🟢 ASYNC | Speech analytics | Indirect via Genesys | N/A (indirect) | OUTBOUND (indirect) |
-
-**Integration Patterns Used:**
-- **BFF (Backend for Frontend):** BFF-chatbot.se provides specialized API for Boost.ai chatbot
-- **API Gateway:** IVRA/NCCP acts as gateway to backend systems
-- **Event-Driven:** CEL receives events asynchronously
-- **REST API:** Most integrations use synchronous REST
-- **Service Mesh:** Backend systems accessed via IVRA/NCCP gateway
-- **Direct Database:** CARE has direct JDBC connection to database
-- **Batch Processing:** Calabrio receives daily exports
+| System | What It Does & How It Communicates with CARE |
+|--------|----------------------------------------------|
+| **Database** | Stores all customer data - Connected via direct JDBC |
+| **IVRA/NCCP** | IVR system fetches customer data via REST API (GET /customer/lookup) |
+| **BFF-chatbot.se** | Provides chat layer with customer data via REST API (GET /customer, /orders) |
+| **Genesys Cloud** | Contact center platform exchanges screen pop data bidirectionally via REST API |
+| **Agent Workspace** | UI for agents to manage customer data via REST API (All CRUD operations) |
+| **BIF-Ticket** | Ticket handler receives customer issues via REST POST from CARE |
+| **Zendesk** | Ticketing system receives tickets indirectly via BIF-Ticket middleware |
+| **Backend Systems** | Business operations communicate bidirectionally via IVRA/NCCP service mesh |
+| **Boost.ai** | AI chatbot accesses customer data indirectly via BFF-chatbot.se layer |
+| **3Speed** | Network diagnostics tool sends speed test results via REST POST |
+| **eMite** | Metrics dashboard pulls CARE metrics via REST GET polling |
+| **CEL** | Audit logging receives all CARE events asynchronously via POST |
+| **Calabrio WFM** | Workforce management receives agent data via daily batch export |
+| **IDF Dialer** | Call analytics receives data indirectly via Genesys Cloud export |
+| **Indicate Me** | Speech analytics receives recordings indirectly via Genesys Cloud |
 
 ---
 

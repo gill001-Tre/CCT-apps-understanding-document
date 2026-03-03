@@ -117,6 +117,126 @@ graph TD
 
 ---
 
+## CARE as Central Hub
+
+### Customer Service Flow
+
+```mermaid
+flowchart LR
+    Customer["👤 Customer<br/>Needs help"]
+    
+    Contact["📞 Contact Channel<br/>Phone/Chat/Email"]
+    
+    CARE["🎯 CARE<br/>Gets customer info"]
+    
+    Agent["👨‍💼 Agent<br/>Helps customer"]
+    
+    Resolution["✅ Resolution<br/>Problem solved"]
+    
+    Customer --> Contact
+    Contact --> CARE
+    CARE --> Agent
+    Agent --> Resolution
+    Resolution --> Customer
+    
+    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:4px,color:#fff
+    style Customer fill:#4dabf7,stroke:#1971c2,stroke-width:2px
+    style Agent fill:#51cf66,stroke:#2f9e44,stroke-width:2px
+    style Resolution fill:#ffd700,stroke:#daa520,stroke-width:2px
+```
+
+**How it works:**
+1. **Customer contacts support** - Via phone, chat, or email
+2. **System fetches customer data** - CARE provides complete customer history
+3. **Agent gets full context** - Sees account details, past issues, current services
+4. **Problem gets resolved** - Agent fixes issue or creates ticket for follow-up
+5. **Everything is logged** - All actions recorded for compliance and quality
+
+---
+
+### Chatbot Customer Journey
+
+```mermaid
+flowchart LR
+    Customer["👤 Customer<br/>On website"]
+    
+    Chatbot["💬 Boost.ai<br/>Chat assistant"]
+    
+    BFF["🔌 BFF Layer<br/>Gets data"]
+    
+    CARE["🎯 CARE<br/>Customer info"]
+    
+    Response["✅ Answer<br/>Provided"]
+    
+    Customer --> Chatbot
+    Chatbot --> BFF
+    BFF --> CARE
+    CARE --> BFF
+    BFF --> Chatbot
+    Chatbot --> Response
+    Response --> Customer
+    
+    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style Customer fill:#4dabf7,stroke:#1971c2,stroke-width:2px
+    style Chatbot fill:#51cf66,stroke:#2f9e44,stroke-width:2px
+```
+
+**How it works:**
+1. **Customer asks chatbot** - Types question on website
+2. **Chatbot requests data** - Via BFF layer to CARE
+3. **CARE provides info** - Customer balance, orders, services
+4. **Chatbot responds** - Instant answer 24/7
+
+---
+
+### CARE Data Flow - Inbound vs Outbound
+
+```mermaid
+graph LR
+    subgraph IN["📥 INBOUND to CARE"]
+        IN1[Agent Workspace]
+        IN2[BFF-chatbot.se]
+        IN3[IVRA/NCCP]
+        IN4[eMite]
+        IN5[3Speed]
+    end
+    
+    CARE["🎯 CARE<br/>REST APIs"]
+    DB[(Database)]
+    
+    subgraph OUT["📤 OUTBOUND from CARE"]
+        OUT1[Zendesk]
+        OUT2[CEL]
+        OUT3[Backend Systems]
+        OUT4[Genesys]
+        OUT5[Calabrio]
+    end
+    
+    IN1 --> CARE
+    IN2 --> CARE
+    IN3 --> CARE
+    IN4 --> CARE
+    IN5 --> CARE
+    
+    CARE <--> DB
+    
+    CARE --> OUT1
+    CARE --> OUT2
+    CARE <--> OUT3
+    CARE --> OUT4
+    CARE --> OUT5
+    
+    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:5px,color:#fff
+    style DB fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
+```
+
+**Simple explanation:**
+- **Inbound**: These apps request data from CARE
+- **Outbound**: CARE sends data to these apps
+- **Database**: CARE stores all customer data here
+
+---
+
 ## Inbound Integrations (Systems calling CARE)
 
 | App Name | Integration Type | Why This Integration Type | Direction | Purpose | Dataflow | Example API Calls |

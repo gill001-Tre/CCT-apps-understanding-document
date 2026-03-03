@@ -5,9 +5,9 @@
 | Document | Description | Link |
 |----------|-------------|------|
 | **Integration Overview** | Quick visual guide to all integrations (You are here) | [README.md](README.md) |
-| **Detailed Integration Map** | Complete integration documentation with patterns, endpoints, and workflows | [integration-details/](integration-details/) |
-| **Developer Onboarding** | CARE backend onboarding guide for new developers | [developer-onboarding/](developer-onboarding/) |
-| **Apps Catalog** | Complete catalog of all 21 contact center applications | [apps-catalog/](apps-catalog/) |
+| **CCT Apps Catalog** | Complete catalog of all 21 contact center applications | [CCT-apps-description/](CCT-apps-description/) |
+| **CARE Integration Map** | Complete integration documentation with patterns, endpoints, and workflows | [CCT-apps-description/CARE/integration-details/](CCT-apps-description/CARE/integration-details/) |
+| **CARE Developer Onboarding** | CARE backend onboarding guide for new developers | [CCT-apps-description/CARE/developer-onboarding/](CCT-apps-description/CARE/developer-onboarding/) |
 
 ---
 

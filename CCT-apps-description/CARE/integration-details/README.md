@@ -119,115 +119,77 @@ graph TD
 
 ## CARE as Central Hub
 
-```mermaid
-sequenceDiagram
-    participant C as Customer
-    participant G as Genesys Cloud
-    participant I as IVRA
-    participant CARE as CARE Backend
-    participant A as Agent Desktop
-    participant S as Support Tools
-    participant Z as Zendesk
-    participant CEL as Event Log
-    
-    Note over C,CEL: Phone Call Journey
-    
-    C->>G: Calls support number
-    G->>I: Route to IVR
-    I->>C: IVR Menu
-    C->>I: Enter account number: 12345
-    
-    I->>CARE: GET /api/customer/lookup?account=12345
-    CARE-->>I: Anna Svensson, Active, Premium
-    
-    I->>G: Customer validated
-    G->>A: Screen pop with customer data
-    A->>CARE: GET /api/customer/full-profile
-    CARE-->>A: Complete customer details
-    
-    G->>C: Agent connected
-    C->>A: Reports slow internet
-    
-    alt Speed Test Required
-        A->>S: Trigger 3Speed test
-        S->>S: Run test (30 seconds)
-        S->>CARE: POST /api/speed-test/result
-        S-->>A: Result: 10 Mbps (expected 100)
-    end
-    
-    Note over A,Z: Create Support Ticket
-    
-    A->>CARE: POST /api/ticket/create
-    CARE->>Z: Create ticket via BIF
-    Z-->>CARE: Ticket #67890 created
-    CARE-->>A: Confirmation
-    
-    A->>C: Ticket created, tech will call within 24h
-    
-    Note over G,CEL: Post-Call Processing
-    
-    G->>CARE: Log call interaction
-    CARE->>CEL: Event: Call completed, 8 min, ticket created
-    G->>S: Trigger survey
-    S->>C: SMS: Rate your experience 1-5
-```
-
-**Workflow Details:**
-- **Average call duration:** 5-8 minutes
-- **IVR lookup time:** < 200ms
-- **Screen pop data:** Customer name, account status, recent orders, open tickets
-- **Common diagnostics:** 3Speed network test (30 sec), account balance check
-- **Escalation:** Creates Zendesk ticket with full context
-- **Compliance:** All interactions logged to CEL for GDPR/audit
-
----
-
-### 3. Chatbot Customer Journey
+### Customer Service Flow
 
 ```mermaid
 flowchart LR
-    C[Customer on Website]
-    Bot[Boost.ai Widget]
-    BFF[BFF-chatbot.se]
-    CARE[CARE APIs]
-    DB[(Database)]
+    Customer["👤 Customer<br/>Needs help"]
     
-    Actions{Customer Request}
+    Contact["📞 Contact Channel<br/>Phone/Chat/Email"]
     
-    C --> Bot
-    Bot --> BFF
-    BFF --> CARE
-    CARE <--> DB
+    CARE["🎯 CARE<br/>Gets customer info"]
     
-    Bot --> Actions
+    Agent["👨‍💼 Agent<br/>Helps customer"]
     
-    Actions -->|Check Balance| Balance[Show Balance]
-    Actions -->|Speed Test| Test[Run 3Speed]
-    Actions -->|Order Status| Orders[Show Orders]
-    Actions -->|Need Help| Ticket[Create Ticket]
+    Resolution["✅ Resolution<br/>Problem solved"]
     
-    Balance --> CARE
-    Test --> 3Speed[3Speed Tool]
-    Orders --> CARE
-    Ticket --> Zendesk[Zendesk]
+    Customer --> Contact
+    Contact --> CARE
+    CARE --> Agent
+    Agent --> Resolution
+    Resolution --> Customer
     
-    3Speed --> CARE
-    
-    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
-    style C fill:#4dabf7,stroke:#1971c2,stroke-width:2px
+    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:4px,color:#fff
+    style Customer fill:#4dabf7,stroke:#1971c2,stroke-width:2px
+    style Agent fill:#51cf66,stroke:#2f9e44,stroke-width:2px
+    style Resolution fill:#ffd700,stroke:#daa520,stroke-width:2px
 ```
 
-**Chatbot Capabilities:**
-- **Self-service:** Balance inquiry, order status, service info
-- **Diagnostics:** Trigger speed tests, check service status
-- **Escalation:** Create tickets for agent follow-up
-- **Languages:** Swedish, English
-- **Context:** Pulls customer history from CARE
-- **Availability:** 24/7 automated support
+**How it works:**
+1. **Customer contacts support** - Via phone, chat, or email
+2. **System fetches customer data** - CARE provides complete customer history
+3. **Agent gets full context** - Sees account details, past issues, current services
+4. **Problem gets resolved** - Agent fixes issue or creates ticket for follow-up
+5. **Everything is logged** - All actions recorded for compliance and quality
 
 ---
 
-### 4. CARE Data Flow - Inbound vs Outbound
+### 2. Chatbot Customer Journey
+
+```mermaid
+flowchart LR
+    Customer["👤 Customer<br/>On website"]
+    
+    Chatbot["💬 Boost.ai<br/>Chat assistant"]
+    
+    BFF["🔌 BFF Layer<br/>Gets data"]
+    
+    CARE["🎯 CARE<br/>Customer info"]
+    
+    Response["✅ Answer<br/>Provided"]
+    
+    Customer --> Chatbot
+    Chatbot --> BFF
+    BFF --> CARE
+    CARE --> BFF
+    BFF --> Chatbot
+    Chatbot --> Response
+    Response --> Customer
+    
+    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style Customer fill:#4dabf7,stroke:#1971c2,stroke-width:2px
+    style Chatbot fill:#51cf66,stroke:#2f9e44,stroke-width:2px
+```
+
+**How it works:**
+1. **Customer asks chatbot** - Types question on website
+2. **Chatbot requests data** - Via BFF layer to CARE
+3. **CARE provides info** - Customer balance, orders, services
+4. **Chatbot responds** - Instant answer 24/7
+
+---
+
+### 3. CARE Data Flow - Inbound vs Outbound
 
 ```mermaid
 graph LR
@@ -250,180 +212,28 @@ graph LR
         OUT5[Calabrio]
     end
     
-    IN1 -->|READ/WRITE All endpoints| CARE
-    IN2 -->|READ Customer & orders| CARE
-    IN3 -->|READ Account validation| CARE
-    IN4 -->|READ Metrics| CARE
-    IN5 -->|WRITE Test results| CARE
+    IN1 --> CARE
+    IN2 --> CARE
+    IN3 --> CARE
+    IN4 --> CARE
+    IN5 --> CARE
     
     CARE <--> DB
     
-    CARE -->|Create tickets| OUT1
-    CARE -->|Log events| OUT2
-    CARE <-->|Query services| OUT3
-    CARE -->|Customer context| OUT4
-    CARE -->|Agent metrics| OUT5
+    CARE --> OUT1
+    CARE --> OUT2
+    CARE <--> OUT3
+    CARE --> OUT4
+    CARE --> OUT5
     
     style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:5px,color:#fff
     style DB fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
 ```
 
-**API Operations Summary:**
-
-**Inbound (Reading from CARE):**
-- Agent Workspace: Full CRUD access to all customer data
-- BFF-chatbot.se: `GET /customer`, `GET /orders` (read-only)
-- IVRA/NCCP: `GET /account/validate` (read-only)
-- eMite: `GET /metrics` (read-only)
-- 3Speed: `POST /speed-test/result` (write only)
-
-**Outbound (CARE calling others):**
-- Zendesk: `POST /api/tickets` via BIF-Ticket
-- CEL: `POST /events` for all interactions
-- Backend Systems: Various REST APIs for billing, provisioning, orders
-- Genesys: Screen pop data on call connect
-- Calabrio: Daily export of agent activity
-
----
-
-### 5. Real-Time Call Center Operations
-
-```mermaid
-stateDiagram-v2
-    [*] --> CallReceived
-    
-    CallReceived --> IVR: Route call
-    IVR --> Validation: Customer enters account
-    
-    Validation --> LookupCARE: Query customer
-    LookupCARE --> Found: 200 OK
-    LookupCARE --> NotFound: 404 Not Found
-    
-    NotFound --> IVR: Retry
-    Found --> SecurityCheck: Validate PIN
-    
-    SecurityCheck --> Passed: PIN correct
-    SecurityCheck --> Failed: PIN wrong
-    
-    Failed --> SecurityCheck: Retry (max 3)
-    Failed --> TransferAgent: Max attempts
-    
-    Passed --> AgentQueue: Route to agent
-    AgentQueue --> Connected: Agent answers
-    
-    state Connected {
-        [*] --> ScreenPop: View customer 360
-        ScreenPop --> HandleIssue: Customer explains
-        HandleIssue --> Diagnostics: Run tests if needed
-        Diagnostics --> CreateTicket: Escalate
-        CreateTicket --> LogInteraction: Update CARE
-        LogInteraction --> [*]
-    }
-    
-    Connected --> CallEnds: Resolve issue
-    CallEnds --> LogCEL: Compliance logging
-    LogCEL --> Survey: Send feedback request
-    Survey --> [*]
-```
-
-**State Descriptions:**
-
-| State | Duration | CARE Interaction | Notes |
-|-------|----------|------------------|-------|
-| IVR | 30-60 sec | None | Menu navigation |
-| Validation | 2-5 sec | GET /customer/lookup | < 200ms API response |
-| Security Check | 10-20 sec | Compare PIN hash | Max 3 attempts |
-| Agent Queue | 0-120 sec | None | Target < 2 min wait |
-| Screen Pop | Instant | GET /full-profile | Shows customer 360 |
-| Handle Issue | 3-7 min | Various reads/writes | Main conversation |
-| Create Ticket | 5-10 sec | POST /ticket/create | Via BIF to Zendesk |
-| Log CEL | < 1 sec | POST /events | Compliance requirement |
-| Survey | Async | None | Brilliant sends SMS |
-
----
-
-### 6. System Dependencies & Priority
-
-```mermaid
-graph TD
-    subgraph CRITICAL["⚠️ CRITICAL"]
-        DB[Database]
-        NET[Network]
-        GEN[Genesys Cloud]
-    end
-    
-    CARE["🎯 CARE"]
-    
-    subgraph HIGH["🟠 HIGH PRIORITY"]
-        BFF[BFF-chatbot.se]
-        IVRA[IVRA/NCCP]
-        BIF[BIF-Ticket]
-    end
-    
-    subgraph MEDIUM["🟡 MEDIUM PRIORITY"]
-        CEL[CEL Event Log]
-        SPEED[3Speed]
-        EMITE[eMite]
-    end
-    
-    subgraph ASYNC["🟢 ASYNC - Can Delay"]
-        IDF[IDF Dialer]
-        IND[Indicate Me]
-        CAL[Calabrio]
-    end
-    
-    DB -.->|No data = Outage| CARE
-    NET -.->|No network = Offline| CARE
-    GEN -.->|No calls possible| CARE
-    
-    CARE ==>|Customer context| BFF
-    CARE ==>|Account validation| IVRA
-    CARE ==>|Ticket data| BIF
-    
-    CARE -->|Event logging| CEL
-    CARE -->|Test storage| SPEED
-    CARE -->|Metrics| EMITE
-    
-    CARE -.->|Batch export| IDF
-    CARE -.->|Agent metrics| CAL
-    GEN -.->|Recordings| IND
-    
-    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:6px,color:#fff
-    style DB fill:#e03131,stroke:#8b0000,stroke-width:4px,color:#fff
-    style NET fill:#e03131,stroke:#8b0000,stroke-width:4px,color:#fff
-    style GEN fill:#e03131,stroke:#8b0000,stroke-width:4px,color:#fff
-    style BFF fill:#ff922b,stroke:#e67700,stroke-width:3px
-    style IVRA fill:#ff922b,stroke:#e67700,stroke-width:3px
-    style BIF fill:#ff922b,stroke:#e67700,stroke-width:3px
-```
-
-**Dependency Impact Analysis:**
-
-| System | Priority | Impact if Down | Fallback Strategy | Recovery |
-|--------|----------|----------------|-------------------|----------|
-| **Database** | 🔴 CRITICAL | Complete outage | None - immediate escalation | < 15 min SLA |
-| **Network** | 🔴 CRITICAL | No connectivity | None - infrastructure team | Immediate |
-| **Genesys Cloud** | 🔴 CRITICAL | No calls | Vendor hotline | Vendor SLA |
-| **IVRA/NCCP** | 🟠 HIGH | IVR can't validate | Route all to agents | 1-2 hours |
-| **BFF-chatbot** | 🟠 HIGH | Chatbot degraded | Generic responses | 1-2 hours |
-| **BIF-Ticket** | 🟠 HIGH | Can't auto-create tickets | Manual Zendesk entry | 2-4 hours |
-| **CEL** | 🟡 MEDIUM | No audit logging | Queue events, replay later | 4-8 hours |
-| **3Speed** | 🟡 MEDIUM | No diagnostics | Manual external tests | 4-8 hours |
-| **eMite** | 🟡 MEDIUM | No live metrics | Use Genesys reports | Next day |
-| **IDF Dialer** | 🟢 ASYNC | Delayed analytics | Batch catch-up | Next batch |
-| **Indicate Me** | 🟢 ASYNC | No AI insights | Process backlog | Not time-critical |
-| **Calabrio** | 🟢 ASYNC | No auto-scheduling | Manual schedules | Next day |
-
----
-
-## CARE as Central Hub
-
-**CARE - Customer Administration** is the central customer data repository that serves as the main hub for customer information across the entire ecosystem.
-
-**Core Function:** 
-- Stores and manages all customer information (personal details, account info, service subscriptions, contact history)
-- Acts as the **source of truth** for customer data
-- All other systems pull customer data from CARE or push updates to CARE
+**Simple explanation:**
+- **Inbound**: These apps request data from CARE
+- **Outbound**: CARE sends data to these apps
+- **Database**: CARE stores all customer data here
 
 ---
 

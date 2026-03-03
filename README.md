@@ -10,158 +10,7 @@
 
 ---
 
-## 1. Individual App Workflows with CARE
-
-### Genesys Cloud ↔ CARE
-```mermaid
-sequenceDiagram
-    Customer->>Genesys: Calls support
-    Genesys->>IVRA: Route to IVR
-    IVRA->>CARE: GET /customer/lookup
-    CARE-->>IVRA: Customer data
-    IVRA->>Genesys: Validated
-    Genesys->>Agent: Screen pop
-    Agent->>CARE: GET /customer/full-profile
-    CARE-->>Agent: Complete data
-```
-**Pattern:** Bidirectional REST API  
-**Endpoints:** `GET /customer/lookup`, `GET /customer/full-profile`
-
----
-
-### BFF-chatbot.se → CARE
-```mermaid
-sequenceDiagram
-    Customer->>Boost.ai: Start chat
-    Boost.ai->>BFF: Request customer data
-    BFF->>CARE: GET /customer/{id}
-    CARE-->>BFF: Customer profile
-    BFF-->>Boost.ai: Formatted data
-    Boost.ai-->>Customer: Personalized response
-```
-**Pattern:** BFF (Backend for Frontend)  
-**Endpoints:** `GET /customer/{id}`, `GET /orders/{customerId}`
-
----
-
-### Agent Workspace → CARE
-```mermaid
-sequenceDiagram
-    Agent->>Workspace: Search customer
-    Workspace->>CARE: GET /customer/search
-    CARE-->>Workspace: Search results
-    Agent->>Workspace: Select customer
-    Workspace->>CARE: GET /customer/{id}
-    CARE-->>Workspace: Full profile
-    Agent->>Workspace: Update info
-    Workspace->>CARE: PUT /customer/{id}
-    CARE-->>Workspace: Updated
-```
-**Pattern:** Synchronous REST API  
-**Endpoints:** `GET /customer/search`, `GET /customer/{id}`, `PUT /customer/{id}`, `POST /customer`
-
----
-
-### IVRA/NCCP → CARE
-```mermaid
-sequenceDiagram
-    IVR->>IVRA: Customer enters account
-    IVRA->>CARE: GET /account/validate
-    CARE-->>IVRA: Valid/Invalid
-    IVRA->>CARE: GET /customer/balance
-    CARE-->>IVRA: Balance info
-    IVRA->>IVR: Speak to customer
-```
-**Pattern:** API Gateway  
-**Endpoints:** `GET /account/validate`, `GET /customer/balance`, `GET /customer/{id}`
-
----
-
-### CARE → Zendesk (via BIF-Ticket)
-```mermaid
-sequenceDiagram
-    Agent->>CARE: Create ticket
-    CARE->>BIF: POST /ticket/create
-    BIF->>Zendesk: Format & create
-    Zendesk-->>BIF: Ticket #12345
-    BIF-->>CARE: Success
-    CARE-->>Agent: Ticket created
-```
-**Pattern:** REST via Middleware  
-**Endpoints:** `POST /ticket/create`
-
----
-
-### 3Speed → CARE
-```mermaid
-sequenceDiagram
-    Agent->>3Speed: Trigger test
-    3Speed->>Customer: Run speed test
-    Customer-->>3Speed: Results
-    3Speed->>CARE: POST /speed-test/result
-    CARE-->>3Speed: Saved
-    CARE->>Agent: Display results
-```
-**Pattern:** Asynchronous REST  
-**Endpoints:** `POST /speed-test/result`, `GET /speed-test/{testId}`
-
----
-
-### CARE → CEL
-```mermaid
-sequenceDiagram
-    Agent->>CARE: Customer interaction
-    CARE->>CARE: Log interaction
-    CARE->>CEL: POST /events
-    CEL-->>CARE: Logged
-```
-**Pattern:** Event-driven (Async)  
-**Endpoints:** `POST /events`
-
----
-
-### eMite → CARE
-```mermaid
-sequenceDiagram
-    loop Every 30 seconds
-        eMite->>CARE: GET /metrics
-        CARE-->>eMite: Current metrics
-        eMite->>Dashboard: Update display
-    end
-```
-**Pattern:** Polling REST API  
-**Endpoints:** `GET /metrics`
-
----
-
-### CARE → Calabrio
-```mermaid
-sequenceDiagram
-    loop Daily at 2 AM
-        CARE->>CARE: Collect agent data
-        CARE->>Calabrio: Export agent metrics
-        Calabrio-->>CARE: Received
-    end
-```
-**Pattern:** Batch Export  
-**Endpoints:** Daily data export
-
----
-
-### CARE ↔ Backend Systems (via IVRA/NCCP)
-```mermaid
-sequenceDiagram
-    CARE->>IVRA: Query billing
-    IVRA->>Backend: GET /billing/status
-    Backend-->>IVRA: Billing data
-    IVRA-->>CARE: Formatted response
-```
-**Pattern:** Service Mesh via Gateway  
-**Endpoints:** Various via IVRA/NCCP
-
----
-
-## 2. Integration Patterns
+## 1. Integration Patterns
 
 | Pattern | Used By | Description |
 |---------|---------|-------------|
@@ -176,7 +25,7 @@ sequenceDiagram
 
 ---
 
-## 3. Integration Endpoints
+## 2. Integration Endpoints
 
 ### Customer Domain
 ```
@@ -239,7 +88,7 @@ POST   /willow/api/featuretoggles             - Update feature state
 
 ---
 
-## 4. Quick Reference - All Integrations
+## 3. Quick Reference - All Integrations
 
 | System | Pattern | Direction | Priority | Key Endpoints |
 |--------|---------|-----------|----------|---------------|
@@ -260,7 +109,7 @@ POST   /willow/api/featuretoggles             - Update feature state
 
 ---
 
-## 5. Simple Architecture Diagram
+## 4. Simple Architecture Diagram
 
 ```mermaid
 graph LR

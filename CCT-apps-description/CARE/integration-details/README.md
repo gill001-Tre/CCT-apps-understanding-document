@@ -121,38 +121,38 @@ graph TD
 
 ```mermaid
 graph TB
-    Customer["👤 CUSTOMER"]
+    Customer["👤 CUSTOMER<br/>Contacts support via<br/>phone, chat, or ticket"]
     
     subgraph Channel["📞 CUSTOMER CONTACT CHANNELS"]
-        Phone["Genesys Cloud"]
-        Web["Boost.ai Chatbot"]
-        Email["Zendesk"]
+        Phone["Genesys Cloud<br/>Call center platform<br/>Routes calls to CARE"]
+        Web["Boost.ai Chatbot<br/>AI chat assistant<br/>Gets data via BFF"]
+        Email["Zendesk<br/>Support tickets<br/>Receives from BIF"]
     end
     
-    subgraph Integration["🔌 INTEGRATION LAYER"]
-        IVRA["IVRA / NCCP"]
-        BFF["BFF-chatbot.se"]
-        BIF["BIF-Ticket"]
+    subgraph Integration["🔌 INTEGRATION LAYER - Bridge between channels and CARE"]
+        IVRA["IVRA/NCCP<br/>Phone system gateway<br/>Fetches customer info for calls"]
+        BFF["BFF-chatbot.se<br/>Chat data provider<br/>Supplies customer data to chatbot"]
+        BIF["BIF-Ticket<br/>Ticket creator<br/>Sends issues to Zendesk"]
     end
     
-    CARE["🎯 CARE<br/>Customer Administration System"]
+    CARE["🎯 CARE<br/>Customer Administration System<br/>━━━━━━━━━━━━━━━━━━<br/>Central hub for all customer data"]
     
-    DB[("💾 Database")]
+    DB[("💾 Database<br/>Stores customer<br/>records")]
     
-    subgraph Support["🛠️ SUPPORT TOOLS"]
-        Speed["3Speed"]
-        Emite["eMite"]
-        CEL["CEL Event Log"]
+    subgraph Support["🛠️ SUPPORT TOOLS - Connected to CARE"]
+        Speed["3Speed<br/>Speed test tool<br/>Saves results to CARE"]
+        Emite["eMite<br/>Monitoring dashboard<br/>Reads CARE metrics"]
+        CEL["CEL Event Log<br/>Audit tracker<br/>Records CARE actions"]
     end
     
-    subgraph Analytics["📊 ANALYTICS"]
-        IDF["IDF Dialer"]
-        Indicate["Indicate Me"]
-        Brilliant["Brilliant"]
-        Calabrio["Calabrio WFM"]
+    subgraph Analytics["📊 ANALYTICS - Report on customer interactions"]
+        IDF["IDF Dialer<br/>Call analytics<br/>Via Genesys"]
+        Indicate["Indicate Me<br/>Call quality<br/>Via Genesys"]
+        Brilliant["Brilliant<br/>Performance tracking<br/>Via Genesys"]
+        Calabrio["Calabrio WFM<br/>Staff planning<br/>Gets agent data from CARE"]
     end
     
-    Backend["🏢 Backend Systems"]
+    Backend["🏢 Backend Systems<br/>Business operations<br/>Connects through IVRA"]
     
     Customer --> Phone
     Customer --> Web
@@ -162,25 +162,26 @@ graph TB
     Web --> BFF
     Email --> BIF
     
-    IVRA -->|READ customer data| CARE
-    BFF -->|READ customer data| CARE
-    BIF -->|READ customer data| CARE
+    IVRA -->|Looks up customer| CARE
+    BFF -->|Gets customer info| CARE
+    BIF -->|Reads customer data| CARE
     
-    CARE <--> DB
+    CARE <-->|Stores/retrieves| DB
     
-    CARE -->|Log events| CEL
-    Speed -->|Write test results| CARE
-    CARE -->|Read metrics| Emite
+    CARE -->|Sends events| CEL
+    Speed -->|Saves test results| CARE
+    Emite -->|Polls metrics| CARE
     
-    CARE <-->|Query services| Backend
+    CARE <-->|Exchanges data| Backend
+    Backend <-->|Via gateway| IVRA
     
-    CARE -->|Send data| BIF
+    CARE -->|Creates tickets| BIF
     BIF --> Email
     
-    Phone -->|Recordings| IDF
-    Phone -->|Audio| Indicate
-    Phone -->|Events| Brilliant
-    CARE -->|Agent data| Calabrio
+    Phone -->|Call recordings| IDF
+    Phone -->|Audio files| Indicate
+    Phone -->|Call events| Brilliant
+    CARE -->|Agent activity| Calabrio
     
     style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:6px,color:#fff
     style DB fill:#fa5252,stroke:#c92a2a,stroke-width:4px,color:#fff
@@ -188,22 +189,6 @@ graph TB
     style IVRA fill:#51cf66,stroke:#2f9e44,stroke-width:2px
     style BFF fill:#51cf66,stroke:#2f9e44,stroke-width:2px
     style BIF fill:#51cf66,stroke:#2f9e44,stroke-width:2px
-```
-
-**System Functions:**
-
-| System | Function | Dependencies |
-|--------|----------|--------------|
-| **CARE** | Customer profile, orders, subscriptions, history | Database |
-| **Genesys Cloud** | Call routing, IVR, agent desktop, recordings | CARE APIs |
-| **Boost.ai** | AI chatbot, 24/7 automated support | BFF layer |
-| **IVRA/NCCP** | IVR to backend bridge, account validation | CARE APIs |
-| **BFF-chatbot.se** | Chat data layer, customer lookup | CARE APIs |
-| **BIF-Ticket** | Ticket creation handler  | CARE + Zendesk |
-| **3Speed** | Network speed testing | CARE storage |
-| **eMite** | Live metrics dashboard | CARE metrics API |
-| **CEL** | Event logging for compliance | CARE events |
-| **Calabrio** | Workforce management | CARE agent data |
 
 ---
 

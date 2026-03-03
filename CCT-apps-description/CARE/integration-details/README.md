@@ -21,57 +21,64 @@
 graph TD
     CARE["🎯 CARE<br/>Customer Administration System<br/>━━━━━━━━━━━━━━━━━━━━<br/>Source of Truth for Customer Data"]
     
+    %% DATABASE
+    DB[("💾 Database<br/>Stores all customer information and transaction data")]
+    
     %% INBOUND INTEGRATIONS
-    IVRA["IVRA/NCCP<br/>IVR system fetches customer data via REST API (GET /customer/lookup)"]
+    IVRA["IVRA/NCCP<br/>Connects IVR phone system to CARE for customer lookup during calls"]
     
-    BFF["BFF-chatbot.se<br/>Provides chat layer with customer data via REST API (GET /customer, /orders)"]
+    BFF["BFF-chatbot.se<br/>Provides customer data to the chatbot interface"]
     
-    Genesys["Genesys Cloud<br/>Contact center platform exchanges screen pop data bidirectionally via REST API"]
+    Genesys["Genesys Cloud<br/>Exchanges call information and shows customer details to agents"]
     
-    Agent["Agent Workspace<br/>UI for agents to manage customer data via REST API (All CRUD operations)"]
+    Agent["Agent Workspace<br/>Main interface where agents view and update customer information"]
     
-    Boost["Boost.ai<br/>AI chatbot accesses customer data indirectly via BFF-chatbot.se layer"]
+    Boost["Boost.ai<br/>AI chatbot that helps customers through BFF layer"]
     
-    Speed["3Speed<br/>Network diagnostics tool sends speed test results via REST POST"]
+    Speed["3Speed<br/>Stores customer internet speed test results in CARE"]
     
-    Emite["eMite<br/>Metrics dashboard pulls CARE metrics via REST GET polling"]
+    Emite["eMite<br/>Dashboard that monitors CARE system performance and metrics"]
     
     %% OUTBOUND INTEGRATIONS
-    BIF["BIF-Ticket<br/>Ticket handler receives customer issues via REST POST from CARE"]
+    BIF["BIF-Ticket<br/>Receives customer issues from CARE to create support tickets"]
     
-    Zendesk["Zendesk<br/>Ticketing system receives tickets indirectly via BIF-Ticket middleware"]
+    Zendesk["Zendesk<br/>Manages customer support tickets sent through BIF"]
     
-    CEL["CEL Event Log<br/>Audit logging receives all CARE events asynchronously via POST"]
+    CEL["CEL Event Log<br/>Records all actions and changes made in CARE for audit purposes"]
     
-    Calabrio["Calabrio WFM<br/>Workforce management receives agent data via daily batch export"]
+    Calabrio["Calabrio WFM<br/>Receives agent activity data for workforce planning"]
     
-    IDF["IDF Dialer<br/>Call analytics receives data indirectly via Genesys Cloud export"]
+    IDF["IDF Dialer<br/>Gets call data through Genesys for analytics"]
     
-    Indicate["Indicate Me<br/>Speech analytics receives recordings indirectly via Genesys Cloud"]
+    Indicate["Indicate Me<br/>Analyzes call recordings through Genesys"]
     
     %% BACKEND SYSTEMS
-    Backend["Backend Systems<br/>Business operations communicate bidirectionally via IVRA/NCCP service mesh"]
+    Backend["Backend Systems<br/>Handles business operations and processes through IVRA gateway"]
     
     %% CONNECTIONS
-    IVRA -->|"REST API"| CARE
-    BFF -->|"REST API"| CARE
-    Agent -->|"REST API"| CARE
-    Speed -->|"REST POST"| CARE
-    Emite <-->|"REST GET"| CARE
-    Boost -->|"Via BFF"| BFF
+    DB <--> CARE
     
-    CARE <-->|"REST API"| Genesys
-    CARE -->|"REST POST"| BIF
-    CARE -->|"POST Events"| CEL
-    CARE -->|"Daily Export"| Calabrio
-    CARE <-->|"Via IVRA"| Backend
+    IVRA --> CARE
+    BFF --> CARE
+    Agent --> CARE
+    Speed --> CARE
+    Emite <--> CARE
+    Boost --> BFF
     
-    BIF -->|"REST API"| Zendesk
-    Genesys -->|"Export"| IDF
-    Genesys -->|"Export"| Indicate
+    CARE <--> Genesys
+    CARE --> BIF
+    CARE --> CEL
+    CARE --> Calabrio
+    CARE <--> Backend
+    Backend <--> IVRA
+    
+    BIF --> Zendesk
+    Genesys --> IDF
+    Genesys --> Indicate
     
     %% STYLING
     style CARE fill:#ff4444,stroke:#cc0000,stroke-width:8px,color:#fff,font-weight:bold,font-size:16px
+    style DB fill:#8b0000,stroke:#000,stroke-width:3px,color:#fff
     style Genesys fill:#ff8c00,stroke:#cc6600,stroke-width:3px
     style IVRA fill:#ff8c00,stroke:#cc6600,stroke-width:2px
     style BFF fill:#ff8c00,stroke:#cc6600,stroke-width:2px
@@ -90,22 +97,23 @@ graph TD
 
 **CARE Integration Summary:**
 
-| System | What It Does & How It Communicates with CARE |
-|--------|----------------------------------------------|
-| **IVRA/NCCP** | IVR system fetches customer data via REST API (GET /customer/lookup) |
-| **BFF-chatbot.se** | Provides chat layer with customer data via REST API (GET /customer, /orders) |
-| **Genesys Cloud** | Contact center platform exchanges screen pop data bidirectionally via REST API |
-| **Agent Workspace** | UI for agents to manage customer data via REST API (All CRUD operations) |
-| **BIF-Ticket** | Ticket handler receives customer issues via REST POST from CARE |
-| **Zendesk** | Ticketing system receives tickets indirectly via BIF-Ticket middleware |
-| **Backend Systems** | Business operations communicate bidirectionally via IVRA/NCCP service mesh |
-| **Boost.ai** | AI chatbot accesses customer data indirectly via BFF-chatbot.se layer |
-| **3Speed** | Network diagnostics tool sends speed test results via REST POST |
-| **eMite** | Metrics dashboard pulls CARE metrics via REST GET polling |
-| **CEL** | Audit logging receives all CARE events asynchronously via POST |
-| **Calabrio WFM** | Workforce management receives agent data via daily batch export |
-| **IDF Dialer** | Call analytics receives data indirectly via Genesys Cloud export |
-| **Indicate Me** | Speech analytics receives recordings indirectly via Genesys Cloud |
+| App Name | What It Does | How It Works with CARE | Real Life Example |
+|----------|--------------|------------------------|-------------------|
+| **Database** | Saves customer data | Stores every customer detail permanently | Like a filing cabinet that keeps all customer records |
+| **IVRA/NCCP** | Handles phone calls | Fetches customer info when someone calls | Customer calls support, IVR looks up their account in CARE |
+| **BFF-chatbot.se** | Powers the chatbot | Gets customer info for chat conversations | Customer chats online, bot retrieves their order history from CARE |
+| **Genesys Cloud** | Manages call center | Shows agent who's calling with their info | Agent sees caller's name and account details pop up on screen |
+| **Agent Workspace** | Agent's work screen | Where agents read and update customer info | Agent opens app to view customer's subscription and make changes |
+| **BIF-Ticket** | Creates support tickets | Takes customer problems from CARE to ticketing system | Agent creates ticket for broken service, BIF sends it to Zendesk |
+| **Zendesk** | Tracks support tickets | Receives tickets from CARE through BIF | Customer issue gets tracked from creation to resolution |
+| **Backend Systems** | Runs business logic | Processes orders and services through IVRA | Customer orders new service, backend systems activate it |
+| **Boost.ai** | AI chatbot helper | Talks to customers using data from BFF | Customer asks bot "what's my bill?", bot checks CARE via BFF |
+| **3Speed** | Tests internet speed | Sends speed test results to customer record | Customer runs speed test, result saves to their CARE profile |
+| **eMite** | Shows system health | Checks how well CARE is running | Dashboard shows CARE response time and active users |
+| **CEL** | Keeps audit logs | Records every action for compliance | Tracks who changed what customer data and when |
+| **Calabrio WFM** | Plans agent schedules | Gets agent work data for staffing decisions | Manager sees call volume to schedule enough agents |
+| **IDF Dialer** | Analyzes calls | Collects call data from Genesys | Reports on call duration and customer satisfaction |
+| **Indicate Me** | Reviews call quality | Listens to recorded calls from Genesys | Analyzes agent performance and customer sentiment |
 
 ---
 

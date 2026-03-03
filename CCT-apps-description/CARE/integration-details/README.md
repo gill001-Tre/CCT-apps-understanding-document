@@ -117,6 +117,54 @@ graph TD
 
 ---
 
+## CARE Data Flow - Inbound vs Outbound
+
+```mermaid
+graph LR
+    subgraph IN["📥 INBOUND to CARE"]
+        IN1[Agent Workspace]
+        IN2[BFF-chatbot.se]
+        IN3[IVRA/NCCP]
+        IN4[eMite]
+        IN5[3Speed]
+    end
+    
+    CARE["🎯 CARE<br/>REST APIs"]
+    DB[(Database)]
+    
+    subgraph OUT["📤 OUTBOUND from CARE"]
+        OUT1[Zendesk]
+        OUT2[CEL]
+        OUT3[Backend Systems]
+        OUT4[Genesys]
+        OUT5[Calabrio]
+    end
+    
+    IN1 --> CARE
+    IN2 --> CARE
+    IN3 --> CARE
+    IN4 --> CARE
+    IN5 --> CARE
+    
+    CARE <--> DB
+    
+    CARE --> OUT1
+    CARE --> OUT2
+    CARE <--> OUT3
+    CARE --> OUT4
+    CARE --> OUT5
+    
+    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:5px,color:#fff
+    style DB fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
+```
+
+**Simple explanation:**
+- **Inbound**: These apps request data from CARE
+- **Outbound**: CARE sends data to these apps
+- **Database**: CARE stores all customer data here
+
+---
+
 ## Inbound Integrations (Systems calling CARE)
 
 | App Name | Integration Type | Why This Integration Type | Direction | Purpose | Dataflow | Example API Calls |

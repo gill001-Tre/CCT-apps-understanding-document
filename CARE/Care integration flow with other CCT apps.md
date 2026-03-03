@@ -14,8 +14,7 @@ sequenceDiagram
     Agent->>CARE: GET /customer/full-profile
     CARE-->>Agent: Complete data
 ```
-**Pattern:** Bidirectional REST API  
-**Endpoints:** `GET /customer/lookup`, `GET /customer/full-profile`
+**What happens:** When a customer calls, the IVR system asks CARE to look up their account. CARE finds the customer and sends back their info. When the call reaches an agent, their screen automatically shows the customer's full profile from CARE, so the agent knows who they're talking to and can help immediately.
 
 ---
 
@@ -29,8 +28,7 @@ sequenceDiagram
     BFF-->>Boost.ai: Formatted data
     Boost.ai-->>Customer: Personalized response
 ```
-**Pattern:** BFF (Backend for Frontend)  
-**Endpoints:** `GET /customer/{id}`, `GET /orders/{customerId}`
+**What happens:** When a customer starts chatting on the website, the chatbot asks the BFF layer to get customer information. BFF requests the customer's profile and order history from CARE, formats it nicely for the chatbot, and the chatbot uses this to give personalized answers like "Hi Anna, I see your order #12345 is arriving tomorrow."
 
 ---
 
@@ -47,8 +45,7 @@ sequenceDiagram
     Workspace->>CARE: PUT /customer/{id}
     CARE-->>Workspace: Updated
 ```
-**Pattern:** Synchronous REST API  
-**Endpoints:** `GET /customer/search`, `GET /customer/{id}`, `PUT /customer/{id}`, `POST /customer`
+**What happens:** An agent types a customer name or phone number to search. CARE finds matching customers and shows them. The agent clicks on the right customer, and CARE displays their complete profile. If the agent needs to update something (like a new email address), they make the change and CARE saves it to the database.
 
 ---
 
@@ -62,8 +59,7 @@ sequenceDiagram
     CARE-->>IVRA: Balance info
     IVRA->>IVR: Speak to customer
 ```
-**Pattern:** API Gateway  
-**Endpoints:** `GET /account/validate`, `GET /customer/balance`, `GET /customer/{id}`
+**What happens:** When a customer calls and enters their account number using the phone keypad, the IVR system checks with CARE if it's a valid account. If it is, CARE sends back the account balance and the IVR reads it out loud to the customer. This all happens automatically without needing an agent.
 
 ---
 
@@ -77,8 +73,7 @@ sequenceDiagram
     BIF-->>CARE: Success
     CARE-->>Agent: Ticket created
 ```
-**Pattern:** REST via Middleware  
-**Endpoints:** `POST /ticket/create`
+**What happens:** When an agent needs to create a support ticket for a customer issue, they click "create ticket" in CARE. CARE sends the customer information to BIF-Ticket, which formats it properly and creates the ticket in Zendesk. Zendesk gives back a ticket number (like #12345), and the agent can see it was successfully created.
 
 ---
 
@@ -92,8 +87,7 @@ sequenceDiagram
     CARE-->>3Speed: Saved
     CARE->>Agent: Display results
 ```
-**Pattern:** Asynchronous REST  
-**Endpoints:** `POST /speed-test/result`, `GET /speed-test/{testId}`
+**What happens:** When a customer complains about slow internet, the agent clicks a button to run a speed test. 3Speed tests the customer's connection speed and gets the results. It then saves these results to CARE so they become part of the customer's history. The agent can immediately see if the internet is actually slow or working normally.
 
 ---
 
@@ -105,8 +99,7 @@ sequenceDiagram
     CARE->>CEL: POST /events
     CEL-->>CARE: Logged
 ```
-**Pattern:** Event-driven (Async)  
-**Endpoints:** `POST /events`
+**What happens:** Every time an agent talks to a customer (phone call, chat, email), CARE automatically records what happened. It sends this information to CEL (Communication Event Log), which keeps a permanent record. This is important for compliance and so anyone can look back and see the complete history of customer interactions.
 
 ---
 
@@ -119,8 +112,7 @@ sequenceDiagram
         eMite->>Dashboard: Update display
     end
 ```
-**Pattern:** Polling REST API  
-**Endpoints:** `GET /metrics`
+**What happens:** Every 30 seconds, the eMite dashboard checks in with CARE asking "how are things going?" CARE responds with current statistics like how many agents are working, how many customers are being helped, and system response times. eMite displays this on big screens so managers can monitor the contact center in real-time.
 
 ---
 
@@ -133,8 +125,7 @@ sequenceDiagram
         Calabrio-->>CARE: Received
     end
 ```
-**Pattern:** Batch Export  
-**Endpoints:** Daily data export
+**What happens:** Every night at 2 AM when call volume is low, CARE packages up all the agent activity data from the day (how many calls handled, talk time, etc.) and sends it to Calabrio. Calabrio uses this data to help managers plan how many agents to schedule for different times and days based on patterns.
 
 ---
 
@@ -146,8 +137,7 @@ sequenceDiagram
     Backend-->>IVRA: Billing data
     IVRA-->>CARE: Formatted response
 ```
-**Pattern:** Service Mesh via Gateway  
-**Endpoints:** Various via IVRA/NCCP
+**What happens:** When CARE needs information from other business systems (like billing, orders, or service provisioning), it asks IVRA/NCCP to get it. IVRA acts like a translator and messenger, fetching the data from the right backend system and bringing it back to CARE in a format that CARE understands. This way CARE doesn't need to know about every single backend system.
 
 ---
 

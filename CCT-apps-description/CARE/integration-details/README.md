@@ -117,312 +117,36 @@ graph TD
 
 ---
 
-## CARE as Central Hub
-
-### Customer Service Flow
-
-```mermaid
-flowchart LR
-    Customer["👤 Customer<br/>Needs help"]
-    
-    Contact["📞 Contact Channel<br/>Phone/Chat/Email"]
-    
-    CARE["🎯 CARE<br/>Gets customer info"]
-    
-    Agent["👨‍💼 Agent<br/>Helps customer"]
-    
-    Resolution["✅ Resolution<br/>Problem solved"]
-    
-    Customer --> Contact
-    Contact --> CARE
-    CARE --> Agent
-    Agent --> Resolution
-    Resolution --> Customer
-    
-    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:4px,color:#fff
-    style Customer fill:#4dabf7,stroke:#1971c2,stroke-width:2px
-    style Agent fill:#51cf66,stroke:#2f9e44,stroke-width:2px
-    style Resolution fill:#ffd700,stroke:#daa520,stroke-width:2px
-```
-
-**How it works:**
-1. **Customer contacts support** - Via phone, chat, or email
-2. **System fetches customer data** - CARE provides complete customer history
-3. **Agent gets full context** - Sees account details, past issues, current services
-4. **Problem gets resolved** - Agent fixes issue or creates ticket for follow-up
-5. **Everything is logged** - All actions recorded for compliance and quality
-
----
-
-### 2. Chatbot Customer Journey
-
-```mermaid
-flowchart LR
-    Customer["👤 Customer<br/>On website"]
-    
-    Chatbot["💬 Boost.ai<br/>Chat assistant"]
-    
-    BFF["🔌 BFF Layer<br/>Gets data"]
-    
-    CARE["🎯 CARE<br/>Customer info"]
-    
-    Response["✅ Answer<br/>Provided"]
-    
-    Customer --> Chatbot
-    Chatbot --> BFF
-    BFF --> CARE
-    CARE --> BFF
-    BFF --> Chatbot
-    Chatbot --> Response
-    Response --> Customer
-    
-    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
-    style Customer fill:#4dabf7,stroke:#1971c2,stroke-width:2px
-    style Chatbot fill:#51cf66,stroke:#2f9e44,stroke-width:2px
-```
-
-**How it works:**
-1. **Customer asks chatbot** - Types question on website
-2. **Chatbot requests data** - Via BFF layer to CARE
-3. **CARE provides info** - Customer balance, orders, services
-4. **Chatbot responds** - Instant answer 24/7
-
----
-
-### 3. CARE Data Flow - Inbound vs Outbound
-
-```mermaid
-graph LR
-    subgraph IN["📥 INBOUND to CARE"]
-        IN1[Agent Workspace]
-        IN2[BFF-chatbot.se]
-        IN3[IVRA/NCCP]
-        IN4[eMite]
-        IN5[3Speed]
-    end
-    
-    CARE["🎯 CARE<br/>REST APIs"]
-    DB[(Database)]
-    
-    subgraph OUT["📤 OUTBOUND from CARE"]
-        OUT1[Zendesk]
-        OUT2[CEL]
-        OUT3[Backend Systems]
-        OUT4[Genesys]
-        OUT5[Calabrio]
-    end
-    
-    IN1 --> CARE
-    IN2 --> CARE
-    IN3 --> CARE
-    IN4 --> CARE
-    IN5 --> CARE
-    
-    CARE <--> DB
-    
-    CARE --> OUT1
-    CARE --> OUT2
-    CARE <--> OUT3
-    CARE --> OUT4
-    CARE --> OUT5
-    
-    style CARE fill:#ff6b6b,stroke:#c92a2a,stroke-width:5px,color:#fff
-    style DB fill:#fa5252,stroke:#c92a2a,stroke-width:3px,color:#fff
-```
-
-**Simple explanation:**
-- **Inbound**: These apps request data from CARE
-- **Outbound**: CARE sends data to these apps
-- **Database**: CARE stores all customer data here
-
----
-
 ## Inbound Integrations (Systems calling CARE)
 
-These systems **call CARE APIs** to retrieve or update customer information:
-
-### 1. **BFF-chatbot.se** → CARE
-**Integration Type:** REST API calls  
-**Direction:** BFF calls CARE  
-**Purpose:** Fetch customer data for personalized chatbot responses  
-**Data Flow:**
-- Customer uses chatbot on website
-- BFF-chatbot.se requests customer info from CARE
-- CARE returns: name, account details, order history
-- Chatbot uses data to personalize responses
-
-**Example API Calls:**
-- `GET /willow/api/customer/{id}` - Get customer profile
-- `GET /willow/api/orders/{customerId}` - Get customer orders
-- `GET /willow/api/account/{id}` - Get account details
-
----
-
-### 2. **Boost.ai** → CARE (via BFF-chatbot.se)
-**Integration Type:** Indirect via BFF  
-**Direction:** Boost.ai → BFF-chatbot.se → CARE  
-**Purpose:** AI chatbot needs customer context  
-**Data Flow:**
-- Boost.ai chatbot handles customer conversation
-- Calls BFF-chatbot.se for customer data
-- BFF retrieves from CARE
-- Chatbot provides personalized assistance
-
----
-
-### 3. **Agent Workspace/Frontend** → CARE
-**Integration Type:** Direct REST API calls  
-**Direction:** Frontend calls CARE backend  
-**Purpose:** Agents view and update customer information  
-**Data Flow:**
-- Agent searches for customer in portal
-- Frontend calls CARE API
-- CARE returns complete customer profile
-- Agent can view/edit customer details
-
-**Common Operations:**
-- Search customers
-- View customer details
-- Update account information
-- View service subscriptions
-- View contact history
-- Manage customer cases
-
----
-
-### 4. **IVRA/NCCP** → CARE
-**Integration Type:** REST API calls from IVR system  
-**Direction:** IVRA/NCCP calls CARE  
-**Purpose:** IVR needs customer data during phone calls  
-**Data Flow:**
-- Customer calls in and enters account number
-- IVR (via IVRA/NCCP) calls CARE to validate account
-- CARE returns account status, balance, etc.
-- IVR speaks information to customer
-
-**Example Scenarios:**
-- Account balance inquiry
-- Service status check
-- Account validation
-- Recent order lookup
-
----
-
-### 5. **eMite Dashboard** → CARE
-**Integration Type:** Read-only data access  
-**Direction:** eMite reads from CARE  
-**Purpose:** Display live metrics to contact center teams  
-**Data Flow:**
-- eMite pulls customer service metrics from CARE
-- Displays real-time dashboard data
-- Shows agent activity and customer interactions
-
----
-
-### 6. **3Speed** → CARE
-**Integration Type:** Writes speed test results to CARE  
-**Direction:** 3Speed updates CARE  
-**Purpose:** Store network speed test results  
-**Data Flow:**
-- Agent initiates speed test for customer
-- 3Speed runs test via third-party API
-- Results written back to CARE
-- Agent sees results in CARE portal
+| App Name | Integration Type | Why This Integration Type | Direction | Purpose | Dataflow | Example API Calls |
+|----------|------------------|---------------------------|-----------|---------|----------|-------------------|
+| **BFF-chatbot.se** | REST API | Simple request-response pattern for chatbot data needs | Inbound to CARE | Fetch customer data for personalized chatbot responses | BFF requests customer info → CARE returns profile/orders → BFF formats for chatbot | `GET /customer/{id}`<br>`GET /orders/{customerId}`<br>`GET /account/{id}` |
+| **Boost.ai** | Indirect via BFF | AI chatbot needs abstraction layer to get customer data | Inbound via BFF | Provide customer context for AI conversations | Boost.ai → BFF-chatbot.se → CARE → Returns data | All calls go through BFF layer |
+| **Agent Workspace** | Direct REST API | Agents need full CRUD access to customer data in real-time | Inbound to CARE | Agents view and update customer information | Agent searches/views/edits → CARE processes → Returns/updates data | `GET /customer/search`<br>`GET /customer/{id}`<br>`PUT /customer/{id}`<br>`POST /customer` |
+| **IVRA/NCCP** | REST API Gateway | IVR system needs quick customer lookup during phone calls | Inbound to CARE | Validate accounts and fetch customer info for callers | Customer calls → IVR asks for account → IVRA calls CARE → Returns account status | `GET /account/validate`<br>`GET /customer/lookup`<br>`GET /customer/balance` |
+| **eMite** | Polling REST API | Dashboard needs continuous metric updates | Inbound to CARE | Display live contact center metrics and performance | eMite polls CARE every 30 seconds → CARE returns current metrics → Dashboard updates | `GET /metrics`<br>`GET /metrics/agent` |
+| **3Speed** | Write-only REST | Speed test tool needs to store results in customer record | Inbound to CARE | Store network diagnostics in customer profile | Agent triggers test → 3Speed runs test → Sends results to CARE → Saved to customer record | `POST /speed-test/result`<br>`GET /speed-test/{testId}` |
+| **Genesys Cloud** | Bidirectional REST | Contact center needs real-time customer data exchange | Both directions | Share customer context during calls and log call data | Genesys requests customer data for screen pop ↔ CARE provides profile ↔ Genesys sends call metadata | `GET /customer/lookup`<br>`GET /customer/full-profile`<br>`POST /communication/log` |
 
 ---
 
 ## Outbound Integrations (CARE calling other systems)
 
-These are systems that **CARE calls** to perform actions or retrieve external data:
-
-### 1. CARE → **Zendesk** (via BIF-Ticket)
-**Integration Type:** REST API calls  
-**Direction:** CARE → BIF-Ticket → Zendesk  
-**Purpose:** Create and manage support tickets  
-**Data Flow:**
-- Agent creates ticket from CARE
-- CARE calls BIF-Ticket service
-- BIF-Ticket formats data and creates ticket in Zendesk
-- Ticket ID returned to CARE
-
-**Operations:**
-- Create support tickets
-- Update ticket status
-- Add notes to tickets
-- Link customer to ticket
+| App Name | Integration Type | Why This Integration Type | Direction | Purpose | Dataflow | Example API Calls |
+|----------|------------------|---------------------------|-----------|---------|----------|-------------------|
+| **Zendesk** | REST via Middleware (BIF-Ticket) | Ticketing system needs formatted data, middleware handles transformation | Outbound from CARE | Create and manage customer support tickets | Agent creates ticket in CARE → CARE sends to BIF-Ticket → BIF formats and posts to Zendesk → Returns ticket ID | `POST /ticket/create`<br>`PUT /ticket/{id}`<br>`GET /ticket/{id}` |
+| **CEL (Event Log)** | Asynchronous Event Logging | Compliance requires non-blocking audit trail of all interactions | Outbound from CARE | Log all customer communications for compliance and audit | CARE detects interaction → Sends event to CEL asynchronously → CEL stores for audit/compliance | `POST /events`<br>(Call logs, emails, chats, SMS) |
+| **Backend Systems** | REST via Gateway (IVRA/NCCP) | Multiple backend services accessed through single gateway for consistency | Bidirectional | Access billing, provisioning, orders, CRM systems | CARE needs billing info → Calls IVRA/NCCP → Gateway routes to correct backend → Returns data | Various backend APIs:<br>`/billing/status`<br>`/provisioning/services`<br>`/orders/create` |
+| **Calabrio WFM** | Batch Data Export | Workforce management doesn't need real-time data, daily batch is efficient | Outbound from CARE | Provide agent activity data for staffing and scheduling | CARE collects daily agent metrics → Exports batch file → Calabrio imports for forecasting | Daily export file with:<br>- Agent activity<br>- Call volumes<br>- Performance metrics |
+| **Genesys Cloud** | Bidirectional REST | Contact center platform needs real-time data exchange | Both directions | Provide screen pop data and receive call metadata | CARE sends customer context → Genesys displays to agent during call → Genesys sends call logs back | `POST /screen-pop`<br>`POST /communication/log`<br>`GET /customer/lookup` |
+| **Brilliant** | Indirect via Genesys | Survey tool triggers based on call events, not direct CARE integration | Outbound via Genesys | Send post-call customer surveys | Call ends → Genesys includes CARE customer data → Brilliant receives event → Sends survey to customer | No direct API calls<br>(Via Genesys events) |
+| **IDF Dialer** | Indirect via Genesys | Analytics tool receives data from call platform, not directly from CARE | Outbound via Genesys | Provide call data for analytics and reporting | Genesys records calls → Includes CARE customer context → IDF Dialer receives for analysis | No direct API calls<br>(Via Genesys export) |
+| **Indicate Me** | Indirect via Genesys | Speech analytics processes recordings from call platform | Outbound via Genesys | Analyze call quality and customer sentiment | Genesys stores recordings → Indicate Me processes audio → Uses CARE customer context for insights | No direct API calls<br>(Via Genesys recordings) |
 
 ---
 
-### 2. CARE → **CEL (Communication Event Log)**
-**Integration Type:** Event logging  
-**Direction:** CARE → CEL  
-**Purpose:** Log all customer communications  
-**Data Flow:**
-- Any customer interaction in CARE (call, email, chat)
-- CARE sends event to CEL
-- CEL stores complete audit trail
-- Searchable history for compliance
-
-**Logged Events:**
-- Customer phone calls
-- Emails sent/received
-- Chat conversations
-- SMS communications
-- Agent interactions
-
----
-
-### 3. CARE → **Genesys Cloud** (via NCCP/IVRA)
-**Integration Type:** Two-way integration  
-**Direction:** Bidirectional  
-**Purpose:** Contact center operations  
-**Data Flow:**
-
-**CARE → Genesys:**
-- Trigger outbound calls
-- Update customer interaction records
-- Screen pop customer info to agents
-
-**Genesys → CARE:**
-- Call metadata
-- Call recordings references
-- Agent activity logs
-
----
-
-### 4. CARE → **External Backend Systems**
-**Integration Type:** REST APIs via IVRA/NCCP  
-**Direction:** CARE → IVRA/NCCP → Backend Systems  
-**Purpose:** Access business systems for customer services  
-**Examples:**
-- Billing systems
-- Provisioning systems
-- Product catalog
-- Order management systems
-- CRM systems
-
----
-
-### 5. CARE → **Calabrio**
-**Integration Type:** Data export for WFM  
-**Direction:** CARE → Calabrio  
-**Purpose:** Workforce management and scheduling  
-**Data Flow:**
-- CARE provides agent activity data
-- Calabrio uses for forecasting and scheduling
-- Contact volume statistics
-- Agent performance metrics
-
----
-
-### 6. CARE → **Brilliant** (Indirectly)
-**Integration Type:** Event trigger  
-**Direction:** CARE → Genesys → Brilliant  
-**Purpose:** Trigger post-call surveys  
-**Data Flow:**
-- Call ends in Genesys
-- Call metadata includes customer ID from CARE
-- Brilliant uses customer info to send survey
+## Data Flow Diagrams
 
 ---
 
@@ -604,28 +328,6 @@ Compliance & Audit Reports
 ### Authorization
 - **Role-Based Access Control (RBAC)** - Agents have different permission levels
 - **Scope-Based Permissions** - External systems limited to specific API scopes
-
----
-
-## System Dependencies Map
-
-```
-CARE depends on:
-├─→ H2 Database (local dev) / Production Database
-├─→ CEL (for logging)
-├─→ External Backend Systems (via IVRA/NCCP)
-└─→ Zendesk (via BIF-Ticket)
-
-Systems that depend on CARE:
-├─→ BFF-chatbot.se
-├─→ Boost.ai (indirectly via BFF)
-├─→ Agent Workspace Frontend
-├─→ IVRA/NCCP (for IVR data)
-├─→ eMite (for metrics)
-├─→ 3Speed (stores results in CARE)
-├─→ Genesys Cloud (screen pop data)
-└─→ Reporting Systems (via CEL)
-```
 
 ---
 

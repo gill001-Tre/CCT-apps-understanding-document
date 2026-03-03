@@ -1,7 +1,5 @@
 # Contact Center Apps and Their Description
 
-This document provides a comprehensive overview of all applications and services in the CARE ecosystem, including their purpose, functionality, and technology stack.
-
 ---
 
 ## Table of Contents

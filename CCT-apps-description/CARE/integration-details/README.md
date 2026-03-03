@@ -189,10 +189,11 @@ graph TB
     style IVRA fill:#51cf66,stroke:#2f9e44,stroke-width:2px
     style BFF fill:#51cf66,stroke:#2f9e44,stroke-width:2px
     style BIF fill:#51cf66,stroke:#2f9e44,stroke-width:2px
+```
 
 ---
 
-### 2. Customer Service Agent Workflow
+### 3. Customer Service Agent Workflow
 
 ```mermaid
 sequenceDiagram
